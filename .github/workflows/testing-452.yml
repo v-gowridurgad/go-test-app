@@ -1,0 +1,23 @@
+name: issue450
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ['stable', 'oldstable', 'go-version-file']
+    name: Go ${{ matrix.go-version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go-version }}
+          go-version-file: 'go.mod'
+
+      - name: Show resolved Go version
+        run: go version
