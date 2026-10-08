@@ -1,20 +1,35 @@
-name: issue722
+name: testing-722
 
 on:
   workflow_dispatch:
+ 
 
 jobs:
-  build:
+  repro:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v7
+      # ---- First setup-go: cache miss -> go mod download -> cache saved at job end
+      - name: setup-go (1st call)
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-        
+          cache: true
 
-      # Any second call to setup-go with cache enabled triggers the issue
-      - uses: actions/setup-go@v7
+      - name: Populate module cache
+        run: |
+          go mod tidy
+          go mod download all
+          du -sh ~/go/pkg/mod ~/.cache/go-build || true
+          # Go marks module files read-only by design
+          ls -l ~/go/pkg/mod/github.com/ | head
+
+      # ---- Second setup-go: same cache key, files already on disk -> tar "File exists"
+      - name: setup-go (2nd call - fails to restore)
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: true
+
+     
