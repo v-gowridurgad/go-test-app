@@ -14,5 +14,5 @@ jobs:
         uses:  v-jitenderpalsingh/setup-go@test-go-version-new
         # uses:  actions/setup-go@v7
         with:
-          go-version: 'go1.14'
+          go-version: 'go1.15beta1'
         
