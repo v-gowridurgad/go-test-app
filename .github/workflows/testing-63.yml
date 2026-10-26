@@ -2,28 +2,22 @@ name: testing-63
 
 on:
   workflow_dispatch:
- 
 
 jobs:
-  
   native-valid:
-    name: native ${{ matrix.go }} → ${{ matrix.expect }}
+    name: ${{ matrix.go }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - { go: 'go1.21',        expect: '1.21.0' }      # exact pin, NOT latest 1.21.x
-          - { go: 'go1.21.5',      expect: '1.21.5' }      # patch
-          - { go: 'go1.18beta2',   expect: '1.18beta2' }   # beta prerelease
-          - { go: 'go1.21rc2',     expect: '1.21rc2' }     # rc prerelease
-          - { go: 'go1.24.0',      expect: '1.24.0' }      # explicit .0
+        go: ['go1.21', 'go1.21.5', 'go1.18beta2', 'go1.21rc2', 'go1.24.0']
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
-        id: setup
+
+      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
         with:
           go-version: '${{ matrix.go }}'
+         
 
-     
+   
