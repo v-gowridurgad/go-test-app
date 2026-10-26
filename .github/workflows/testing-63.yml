@@ -4,35 +4,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  native-pins-zero:
-    name: go1.21 (native)
+  reject:
+    name: reject ${{ matrix.go }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go:
+          - 'go1.21.x'     # wildcard with go prefix
+          - 'go^1.21'      # caret range with go prefix
+          - 'go~1.21'      # tilde range with go prefix
+          - 'go>=1.21'     # comparator with go prefix
+          - 'go1.21.'      # trailing dot
+          - 'go1.21beta'   # prerelease with no number
+          - 'go1.21beta0'  # zero-indexed prerelease
+          - 'go01.21'      # leading zero
+          - 'go1.21.5.1'   # four components
+          - 'gofoo'        # garbage
+          - 'go'           # prefix only
     steps:
       - uses: actions/checkout@v7
 
       - uses: v-jitenderpalsingh/setup-go@test-go-version-new
         with:
-          go-version: 'go1.21'
-  
+          go-version: '${{ matrix.go }}'
+       
 
-  semver-floats:
-    name: 1.21 (semver)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
-        with:
-          go-version: '1.21'   
-
-  native-with-check-latest:
-    name: go1.21 + check-latest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
-        with:
-          go-version: 'go1.21'
-          check-latest: true
-         
+    
