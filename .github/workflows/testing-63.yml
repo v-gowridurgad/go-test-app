@@ -4,24 +4,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  boundary:
+  semver:
     name: ${{ matrix.go }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         go:
-          - 'go1.8.5rc1'    # makeSemver docs: 1.8.5rc1 => 1.8.5-rc.1
-          - 'go1.21.5beta1' # patch + beta
-          - 'go1.21.0rc1'   # explicit .0 + rc
-          - 'go1'           # bare major — real upstream tag
-          - 'go1.9'         # old minor, no patch
-          - 'go1.10beta1'   # two-digit minor + beta
+          - '1.25'              # minor only
+          - '1.24.11'           # exact
+          - '1.24.0-rc.1'       # semver prerelease
+          - '1.23.0-beta.1'
+          - '^1.24.0'           # caret range
+          - '~1.24.1'           # tilde range
+          - '>=1.22.0 <1.24.0'  # compound range
+          - '1.25.x'            # wildcard
+          - '1.x'
+          - 'stable'            # alias
+          - 'oldstable'
     steps:
       - uses: actions/checkout@v7
 
       - uses: v-jitenderpalsingh/setup-go@test-go-version-new
+     
         with:
           go-version: '${{ matrix.go }}'
-        
+      
 
+      
