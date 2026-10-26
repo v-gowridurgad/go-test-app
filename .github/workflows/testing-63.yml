@@ -1,0 +1,18 @@
+name: testing-63
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        
+      - name: Setup Go
+        # uses:  gowridurgad/setup-go@testing-ppc64
+        uses:  actions/setup-go@v7
+        with:
+          go-version: 'go1.14'
+        
