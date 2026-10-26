@@ -4,32 +4,58 @@ on:
   workflow_dispatch:
 
 jobs:
-  semver:
-    name: ${{ matrix.go }}
+  version-file:
+    name: ${{ matrix.kind }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        go:
-          - '1.25'              # minor only
-          - '1.24.11'           # exact
-          - '1.24.0-rc.1'       # semver prerelease
-          - '1.23.0-beta.1'
-          - '^1.24.0'           # caret range
-          - '~1.24.1'           # tilde range
-          - '>=1.22.0 <1.24.0'  # compound range
-          - '1.25.x'            # wildcard
-          - '1.x'
-          - 'stable'            # alias
-          - 'oldstable'
+        include:
+          - kind: go.mod-go-directive
+            file: go.mod
+            body: "module t\n\ngo 1.24.0\n"
+          - kind: go.mod-toolchain-stable
+            file: go.mod
+            body: "module t\n\ngo 1.21.0\n\ntoolchain go1.24.5\n"
+          - kind: go.mod-toolchain-rc
+            file: go.mod
+            body: "module t\n\ngo 1.21.0\n\ntoolchain go1.24rc1\n"
+          - kind: go.mod-toolchain-beta
+            file: go.mod
+            body: "module t\n\ngo 1.17.0\n\ntoolchain go1.18beta2\n"
+          - kind: go-work-toolchain
+            file: go.work
+            body: "go 1.21.0\n\ntoolchain go1.24.5\n\nuse .\n"
+          - kind: dot-go-version-native
+            file: .go-version
+            body: "go1.24.5\n"
+          - kind: dot-go-version-plain
+            file: .go-version
+            body: "1.24.5\n"
+          - kind: tool-versions
+            file: .tool-versions
+            body: "golang 1.24.5\n"
     steps:
       - uses: actions/checkout@v7
 
-      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
-      - uses: actions/setup-go@v7
-     
-        with:
-          go-version: '${{ matrix.go }}'
-      
+      - name: Write ${{ matrix.file }}
+        shell: bash
+        run: |
+          printf '${{ matrix.body }}' > '${{ matrix.file }}'
+          echo "--- ${{ matrix.file }} ---"
+          cat '${{ matrix.file }}'
 
-      
+      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
+        id: setup
+        continue-on-error: true
+        with:
+          go-version-file: '${{ matrix.file }}'
+          cache: false
+
+      - name: Report outcome
+        shell: bash
+        run: |
+          echo "kind     = ${{ matrix.kind }}"
+          echo "outcome  = ${{ steps.setup.outcome }}"
+          echo "resolved = ${{ steps.setup.outputs.go-version }}"
+          go version || true
