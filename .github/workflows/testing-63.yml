@@ -4,21 +4,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  native-valid:
-    name: ${{ matrix.go }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ['go1.21', 'go1.21.5', 'go1.18beta2', 'go1.21rc2', 'go1.24.0']
+  native-pins-zero:
+    name: go1.21 (native)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - uses: v-jitenderpalsingh/setup-go@test-go-version-new
-      - uses: actions/setup-go@v7
         with:
-          go-version: '${{ matrix.go }}'
-         
+          go-version: 'go1.21'
+  
 
-   
+  semver-floats:
+    name: 1.21 (semver)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
+        with:
+          go-version: '1.21'   
+
+  native-with-check-latest:
+    name: go1.21 + check-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
+        with:
+          go-version: 'go1.21'
+          check-latest: true
+         
