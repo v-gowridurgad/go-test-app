@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: v-jitenderpalsingh/setup-go@test-go-version-new
+      - uses: actions/setup-go@v7
         with:
             go-version: 'go1.21rc2'
             go-download-base-url: 'https://dl.google.com/go'
